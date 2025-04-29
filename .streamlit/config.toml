@@ -1,0 +1,19 @@
+[theme]
+base = "dark"
+font = "sans serif"
+primaryColor = "#FF4B4B"
+secondaryBackgroundColor = "#F0F2F6"
+backgroundColor = "#FFFFFF"
+textColor = "#262730"
+
+[server]
+# Only keep valid server options
+enableXsrfProtection = true  # Keep XSRF protection enabled for security
+
+[browser]
+serverAddress = "localhost"
+gatherUsageStats = false
+
+[runner]
+# Keep valid runner options
+fastReruns = true

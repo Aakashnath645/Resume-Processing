@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Screening Assistant</title>
+  <style>
+    .stApp {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .stTextArea > div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stTextArea > label {
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .uploadedFile {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .stButton > button {
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      padding: 0.5rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: auto;
+      min-width: 120px;
+      margin: 1rem 0;
+    }
+
+    .stButton > button:hover {
+      background: linear-gradient(135deg, #5a7cfb, #9467e3);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .stProgress > div {
+      height: 6px;
+      background: linear-gradient(90deg, #6e8efb, #a777e3);
+      border-radius: 3px;
+    }
+
+    .report-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      margin: 2rem 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .download-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="animation-container">
+    <!-- Loading Animation -->
+    <div class="loading-spinner"></div>
+    
+    <!-- Upload Animation -->
+    <div class="upload-animation">
+      <div class="upload-icon"></div>
+      <div class="upload-progress"></div>
+    </div>
+    
+    <!-- Success Animation -->
+    <div class="success-animation">
+      <div class="checkmark"></div>
+    </div>
+    
+    <!-- Error Animation -->
+    <div class="error-animation">
+      <div class="error-icon"></div>
+    </div>
+  </div>
+
+  <script>
+    // Animation triggers
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show loading animation
+      function showLoading() {
+        document.querySelector('.loading-spinner').style.display = 'block';
+      }
+      
+      // Show success animation
+      function showSuccess() {
+        document.querySelector('.success-animation').style.display = 'block';
+        setTimeout(() => {
+          document.querySelector('.success-animation').style.display = 'none';
+        }, 2000);
+      }
+      
+      // Show error animation
+      function showError() {
+        document.querySelector('.error-animation').style.display = 'block';
+        setTimeout(() => {
+          document.querySelector('.error-animation').style.display = 'none';
+        }, 2000);
+      }
+    });
+  </script>
+</body>
+</html>
