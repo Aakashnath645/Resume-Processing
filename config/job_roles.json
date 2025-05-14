@@ -1,0 +1,152 @@
+{
+    "Engineering": {
+        "roles": [
+            "Software Engineer",
+            "Senior Software Engineer",
+            "Lead Engineer",
+            "DevOps Engineer",
+            "Frontend Developer",
+            "Backend Developer",
+            "Full Stack Developer"
+        ]
+    },
+    "Marketing": {
+        "roles": [
+            "Chief Marketing Officer",
+            "VP of Marketing",
+            "Marketing Director",
+            "Senior Marketing Manager",
+            "Marketing Manager",
+            "Senior Marketing Specialist",
+            "Marketing Specialist",
+            "Marketing Associate",
+            "Junior Marketing Associate",
+            "Marketing Coordinator",
+            "Marketing Intern"
+        ]
+    },
+    "Sales": {
+        "roles": [
+            "Chief Sales Officer",
+            "VP of Sales",
+            "Sales Director",
+            "Regional Sales Director",
+            "Senior Sales Manager",
+            "Sales Manager",
+            "Senior Sales Executive",
+            "Sales Executive",
+            "Sales Associate",
+            "Junior Sales Associate",
+            "Sales Development Representative",
+            "Sales Intern"
+        ]
+    },
+    "Human Resources": {
+        "roles": [
+            "Chief Human Resources Officer",
+            "VP of Human Resources",
+            "HR Director",
+            "Senior HR Manager",
+            "HR Manager",
+            "Senior HR Business Partner",
+            "HR Business Partner",
+            "HR Specialist",
+            "HR Associate",
+            "HR Coordinator",
+            "HR Intern"
+        ]
+    },
+    "Finance": {
+        "roles": [
+            "Chief Financial Officer",
+            "VP of Finance",
+            "Finance Director",
+            "Senior Finance Manager",
+            "Finance Manager",
+            "Senior Financial Analyst",
+            "Financial Analyst",
+            "Junior Financial Analyst",
+            "Finance Associate",
+            "Finance Coordinator",
+            "Finance Intern"
+        ]
+    },
+    "Operations": {
+        "roles": [
+            "Chief Operations Officer",
+            "VP of Operations",
+            "Operations Director",
+            "Senior Operations Manager",
+            "Operations Manager",
+            "Senior Operations Analyst",
+            "Operations Analyst",
+            "Operations Associate",
+            "Operations Coordinator",
+            "Operations Assistant",
+            "Operations Intern"
+        ]
+    },
+    "Claims": {
+        "roles": [
+            "Chief Claims Officer",
+            "VP of Claims",
+            "Claims Director",
+            "Senior Claims Manager",
+            "Claims Manager",
+            "Senior Claims Adjuster",
+            "Claims Adjuster",
+            "Claims Specialist",
+            "Claims Investigator",
+            "Claims Processor",
+            "Junior Claims Adjuster",
+            "Claims Assistant",
+            "Claims Intern"
+        ]
+    },
+    "Legal": {
+        "roles": [
+            "Chief Legal Officer",
+            "General Counsel",
+            "VP of Legal Affairs",
+            "Legal Director",
+            "Senior Legal Counsel",
+            "Legal Counsel",
+            "Senior Legal Manager",
+            "Legal Manager",
+            "Senior Legal Associate",
+            "Legal Associate",
+            "Junior Legal Associate",
+            "Legal Assistant",
+            "Legal Intern",
+            "Paralegal Manager",
+            "Senior Paralegal",
+            "Paralegal",
+            "Junior Paralegal"
+        ]
+    },
+    "Data Science": {
+        "roles": [
+            "Data Scientist",
+            "Senior Data Scientist",
+            "Machine Learning Engineer",
+            "Data Analyst",
+            "Research Scientist"
+        ]
+    },
+    "Product": {
+        "roles": [
+            "Product Manager",
+            "Senior Product Manager",
+            "Product Owner",
+            "Business Analyst"
+        ]
+    },
+    "Design": {
+        "roles": [
+            "UI Designer",
+            "UX Designer",
+            "Product Designer",
+            "Senior Designer"
+        ]
+    }
+}
