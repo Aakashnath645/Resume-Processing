@@ -72,7 +72,7 @@ cursor.execute("SELECT * FROM candidates WHERE department=?", (department,))
 
 If you discover a security issue, please report it responsibly:
 
-- Email: [support@example.com](mailto:support@example.com)
+- Email: [aakashnath645@gmail.com](mailto:aakashnath645@gmail.com)
 - Subject line: **"Security Vulnerability Report - Resume Hiring Assistant"**
 
 We aim to respond within 72 hours and take urgent action when required.
@@ -94,12 +94,6 @@ We aim to respond within 72 hours and take urgent action when required.
 - Security patches are released under version increments (e.g., `v1.1.1`).
 - Users are advised to always use the latest release for maximum protection.
 
----
 
-## 📜 License
 
-This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
-
----
-
-_Last updated: May 14, 2025_
+_Last updated: May 15, 2025_
