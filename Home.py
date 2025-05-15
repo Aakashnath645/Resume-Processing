@@ -30,8 +30,8 @@ if not os.getenv('GEMINI_API_KEY'):
     raise ValueError("GEMINI_API_KEY not found in environment variables. Please add it to .env file")
 
 try:
-    genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-    model = genai.GenerativeModel('gemini-2.0-flash')
+    genai.configure(api_key=os.getenv('GEMINI_API_KEY')) # type: ignore
+    model = genai.GenerativeModel('gemini-2.0-flash') # type: ignore
 except Exception as e:
     raise RuntimeError(f"Failed to initialize Gemini model: {e}")
 
@@ -166,11 +166,11 @@ def load_job_roles():
     with open("config/job_roles.json") as f:
         return json.load(f)
 
-def process_resume(
+def process_resume( # type: ignore
     resume_text: str,
     job_description: str, 
     role_level: str,
-    department: str = None
+    department: str = None # type: ignore
 ) -> Dict[str, Any]:
     """
     Process single resume with enhanced error handling
@@ -206,7 +206,7 @@ def process_resume(
         keyword_score = compute_basic_keyword_score(resume_text, job_description)
         
         # Get AI analysis with validation
-        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level)
+        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level) # type: ignore
         ai_results = validate_dict_structure(
             ai_results,
             ['scores', 'explanation'],
@@ -313,7 +313,7 @@ def compute_ATS_score_combined(resume_text, job_description, role_level):
     """Enhanced scoring with AI and basic keyword matching"""
     try:
         # Get AI analysis
-        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level)
+        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level) # type: ignore
         
         # Basic keyword matching
         keyword_score = compute_basic_keyword_score(resume_text, job_description)
@@ -668,7 +668,7 @@ def is_suitable_numeric(score, role_level, threshold=45):  # Lowered base thresh
 def analyze_job_description(job_description):
     return job_description
 
-def analyze_resume_with_jd(resume_text: str, job_description: str, role_level: str) -> str:
+def analyze_resume_with_jd(resume_text: str, job_description: str, role_level: str) -> str: # type: ignore
     """Generate objective analysis using Gemini 2.0 Flash"""
     try:
         prompt = f"""Provide an objective evaluation of this candidate's qualifications:
@@ -733,7 +733,7 @@ def get_ai_response(prompt, max_retries=3, delay=1):
     """Helper function to handle AI response with retries"""
     for attempt in range(max_retries):
         try:
-            response = genai.generate_content(prompt)
+            response = genai.generate_content(prompt) # type: ignore
             return response.text.strip()
         except Exception as e:
             if attempt < max_retries - 1:
@@ -999,35 +999,44 @@ if process_button:
 if st.session_state.current_batch_results:
     st.success(f"✨ Analysis completed! Processed {len(st.session_state.current_batch_results)} resumes.")
 
-    # Generate batch reports first
-    pdf_batch_data = report_generator.generate_batch_pdf_report(st.session_state.current_batch_results)
-    docx_batch_data = report_generator.generate_batch_docx_report(st.session_state.current_batch_results)
+    # Generate batch reports with error handling
+    try:
+        pdf_batch_data = report_generator.generate_batch_pdf_report(st.session_state.current_batch_results)
+        docx_batch_data = report_generator.generate_batch_docx_report(st.session_state.current_batch_results)
+    except Exception as e:
+        st.error(f"Error generating reports: {str(e)}")
+        pdf_batch_data = None
+        docx_batch_data = None
 
     # Single instance of download buttons
     col1, col2 = st.columns(2)
     current_time = int(time.time())
 
     with col1:
-        st.download_button(
-            "📄 Download All PDF Reports",
-            data=pdf_batch_data,
-            file_name="batch_analysis_reports.pdf",
-            mime="application/pdf",
-            key=f"pdf_download_{current_time}",
-            use_container_width=True,
-            disabled=not pdf_batch_data  # Disable button if no data
-        )
+        if pdf_batch_data is not None:
+            st.download_button(
+                "📄 Download All PDF Reports",
+                data=pdf_batch_data,
+                file_name=f"batch_analysis_reports_{current_time}.pdf",
+                mime="application/pdf",
+                key=f"pdf_download_{current_time}",
+                use_container_width=True
+            )
+        else:
+            st.error("PDF report generation failed")
 
     with col2:
-        st.download_button(
-            "📑 Download All DOCX Reports",
-            data=docx_batch_data,
-            file_name="batch_analysis_reports.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            key=f"docx_download_{current_time}",
-            use_container_width=True,
-            disabled=not docx_batch_data  # Disable button if no data
-        )
+        if docx_batch_data is not None:
+            st.download_button(
+                "📑 Download All DOCX Reports",
+                data=docx_batch_data,
+                file_name=f"batch_analysis_reports_{current_time}.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                key=f"docx_download_{current_time}",
+                use_container_width=True
+            )
+        else:
+            st.error("DOCX report generation failed")
 
     # Updated results card display with consistent naming
     st.markdown("### Analysis Results")
@@ -1143,7 +1152,7 @@ def identify_missing_critical_skills(required, provided):
 ai_analyzer = AIAnalyzer()
 report_generator = EnhancedReport()
 
-def process_resume(resume_text, job_description, role_level, department=None):
+def process_resume(resume_text, job_description, role_level, department=None): # type: ignore
     """Process single resume with enhanced error handling"""
     default_structure = {
         'score': 50,
@@ -1169,7 +1178,7 @@ def process_resume(resume_text, job_description, role_level, department=None):
         
         # Get base scores
         keyword_score = compute_basic_keyword_score(resume_text, job_description)
-        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level)
+        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level) # type: ignore
         
         # Apply role-based weights
         if is_senior:
@@ -1305,11 +1314,11 @@ def extract_technical_skills(text):
     ]
     return [skill for skill in common_tech_skills if skill in text.lower()]
 
-def process_resume(resume_text: str, job_description: str, role_level: str, department: str = None) -> Dict[str, Any]:
+def process_resume(resume_text: str, job_description: str, role_level: str, department: str = None) -> Dict[str, Any]: # type: ignore
     """Enhanced resume processing with better AI-score integration"""
     try:
         # Get AI analysis first
-        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level)
+        ai_results = ai_analyzer.parallel_analysis(resume_text, job_description, role_level) # type: ignore
         
         # Extract detailed scores
         technical_score = ai_results.get('scores', {}).get('detailed', {}).get('technical', 50)
@@ -1383,7 +1392,7 @@ def process_resume(resume_text: str, job_description: str, role_level: str, depa
             'detailed_analysis': f'Error in analysis: {str(e)}'
         }
 
-def analyze_resume_with_jd(resume_text: str, job_description: str, role_level: str) -> str:
+def analyze_resume_with_jd(resume_text: str, job_description: str, role_level: str) -> str: # type: ignore
     """Generate AI analysis with improved scoring justification"""
     try:
         prompt = f"""Analyze this resume for a {role_level} position with detailed scoring:

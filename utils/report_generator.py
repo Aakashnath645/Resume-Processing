@@ -37,122 +37,116 @@ class EnhancedReport:
         pdf = FPDF()
         pdf.add_page()
         
-        # Add title
+        # Add title with consistent formatting
         pdf.set_font("Arial", "B", size=16)
-        pdf.cell(200, 10, txt="Resume Analysis Report", ln=1, align='C')
+        pdf.cell(0, 10, txt="Resume Analysis Report", ln=1, align='C') # type: ignore
         pdf.ln(10)
         
-        # Add candidate info
+        # Add candidate info with consistent sections
         pdf.set_font("Arial", "B", size=12)
-        if "Candidate Name" in analysis_results:
-            pdf.cell(200, 10, txt=f"Candidate: {analysis_results['Candidate Name']}", ln=1)
-        if "Department" in analysis_results:
-            pdf.cell(200, 10, txt=f"Department: {analysis_results['Department']}", ln=1)
-        if "Role" in analysis_results:
-            pdf.cell(200, 10, txt=f"Position: {analysis_results['Role']}", ln=1)
-        pdf.ln(10)
+        for field in ['Candidate Name', 'Department', 'Role']:
+            if field in analysis_results:
+                label = "Position: " if field == "Role" else f"{field}: "
+                pdf.cell(0, 10, txt=f"{label}{analysis_results[field]}", ln=1) # type: ignore
+        pdf.ln(5)
 
-        # Add scores section
+        # Match results section
         pdf.set_font("Arial", "B", size=12)
-        pdf.cell(200, 10, txt="Analysis Results", ln=1)
+        pdf.cell(0, 10, txt="Analysis Results", ln=1) # type: ignore
         pdf.set_font("Arial", size=11)
+        for field in ['Match %', 'Suitable']:
+            if field in analysis_results:
+                label = "Match Percentage: " if field == "Match %" else "Recommendation: "
+                pdf.cell(0, 10, txt=f"{label}{analysis_results[field]}", ln=1) # type: ignore
         
-        if "Match %" in analysis_results:
-            pdf.cell(200, 10, txt=f"Match Percentage: {analysis_results['Match %']}", ln=1)
-        if "Suitable" in analysis_results:
-            pdf.cell(200, 10, txt=f"Recommendation: {analysis_results['Suitable']}", ln=1)
-        
-        # Add AI Scores if present
+        # Detailed scores section
         if "AI Scores" in analysis_results:
             pdf.ln(5)
             pdf.set_font("Arial", "B", size=12)
-            pdf.cell(200, 10, txt="Detailed Scores", ln=1)
+            pdf.cell(0, 10, txt="Detailed Scores", ln=1) # type: ignore
             pdf.set_font("Arial", size=11)
             for category, score in analysis_results["AI Scores"].items():
-                pdf.cell(200, 10, txt=f"{category.title()}: {score}", ln=1)
+                pdf.cell(0, 10, txt=f"{category.title()}: {score}", ln=1) # type: ignore
         
-        # Add detailed analysis
+        # Detailed analysis section
         if "Detailed Analysis" in analysis_results:
-            pdf.ln(10)
+            pdf.ln(5)
             pdf.set_font("Arial", "B", size=12)
-            pdf.cell(200, 10, txt="Detailed Analysis", ln=1)
+            pdf.cell(0, 10, txt="Detailed Analysis", ln=1) # type: ignore
             pdf.set_font("Arial", size=11)
             
-            # Split analysis into paragraphs for better formatting
             analysis_text = analysis_results["Detailed Analysis"]
-            paragraphs = analysis_text.split('\n')
-            for para in paragraphs:
-                if para.strip():
-                    # Use multi_cell for proper text wrapping
-                    pdf.multi_cell(0, 10, txt=para.strip())
-                    pdf.ln(5)
+            pdf.multi_cell(0, 10, txt=analysis_text) # type: ignore
 
-        return pdf.output(dest='S').encode('latin-1')
+        # Return bytes directly with fallback
+        try:
+            return bytes(pdf.output())
+        except Exception:
+            return pdf.output().encode('latin-1', errors='replace') # type: ignore
 
-    def generate_batch_pdf_report(self, batch_results):
-        """Generates a comprehensive batch PDF report."""
-        pdf = FPDF()
-        
-        # Add cover page
-        pdf.add_page()
-        pdf.set_font("Arial", "B", size=16)
-        pdf.cell(200, 10, txt="Batch Resume Analysis Report", ln=1, align='C')
-        pdf.ln(10)
-        
-        # Summary section
-        pdf.set_font("Arial", "B", size=14)
-        pdf.cell(200, 10, txt=f"Total Candidates Analyzed: {len(batch_results)}", ln=1)
-        pdf.ln(10)
-
-        # Individual reports
-        for i, results in enumerate(batch_results, 1):
+    def generate_batch_pdf_report(self, results):
+        """Generate a combined PDF report for all results"""
+        try:
+            pdf = FPDF()
             pdf.add_page()
             
-            # Report header
-            pdf.set_font("Arial", "B", size=14)
-            pdf.cell(200, 10, txt=f"Candidate Report {i}", ln=1, align='C')
+            # Add title
+            pdf.set_font("Arial", "B", size=16)
+            pdf.cell(0, 10, txt="Batch Resume Analysis Report", ln=1, align='C') # type: ignore
             pdf.ln(5)
             
-            # Candidate details
-            pdf.set_font("Arial", "B", size=12)
-            if "Candidate Name" in results:
-                pdf.cell(200, 10, txt=f"Name: {results['Candidate Name']}", ln=1)
-            if "Department" in results:
-                pdf.cell(200, 10, txt=f"Department: {results['Department']}", ln=1)
-            if "Role" in results:
-                pdf.cell(200, 10, txt=f"Position: {results['Role']}", ln=1)
+            # Add summary
+            pdf.set_font("Arial", size=12)
+            pdf.cell(0, 10, txt=f"Total Candidates Analyzed: {len(results)}", ln=1) # type: ignore
+            pdf.ln(10)
             
-            # Match results
-            pdf.ln(5)
-            pdf.set_font("Arial", size=11)
-            if "Match %" in results:
-                pdf.cell(200, 10, txt=f"Match Percentage: {results['Match %']}", ln=1)
-            if "Suitable" in results:
-                pdf.cell(200, 10, txt=f"Recommendation: {results['Suitable']}", ln=1)
-            
-            # Detailed scores
-            if "AI Scores" in results:
-                pdf.ln(5)
+            # Process each candidate
+            for i, result in enumerate(results, 1):
+                pdf.set_font("Arial", "B", size=14)
+                pdf.cell(0, 10, txt=f"Candidate Report {i}", ln=1) # type: ignore
+                
+                # Candidate details
                 pdf.set_font("Arial", "B", size=12)
-                pdf.cell(200, 10, txt="Detailed Scores", ln=1)
-                pdf.set_font("Arial", size=11)
-                for category, score in results["AI Scores"].items():
-                    pdf.cell(200, 10, txt=f"{category.title()}: {score}", ln=1)
-            
-            # Detailed analysis
-            if "Detailed Analysis" in results:
+                for field in ['Candidate Name', 'Department', 'Role']:
+                    if field in result:
+                        label = "Position: " if field == "Role" else f"{field}: "
+                        pdf.cell(0, 10, txt=f"{label}{result[field]}", ln=1) # type: ignore
+                
+                # Match results
                 pdf.ln(5)
-                pdf.set_font("Arial", "B", size=12)
-                pdf.cell(200, 10, txt="Detailed Analysis", ln=1)
-                pdf.set_font("Arial", size=11)
-                analysis_text = results["Detailed Analysis"]
-                paragraphs = analysis_text.split('\n')
-                for para in paragraphs:
-                    if para.strip():
-                        pdf.multi_cell(0, 10, txt=para.strip())
-                        pdf.ln(5)
-
-        return pdf.output(dest='S').encode('latin-1')
+                for field in ['Match %', 'Suitable']:
+                    if field in result:
+                        label = "Match Percentage: " if field == "Match %" else "Recommendation: "
+                        pdf.cell(0, 10, txt=f"{label}{result[field]}", ln=1) # type: ignore
+                
+                # Detailed scores
+                if "AI Scores" in result:
+                    pdf.ln(5)
+                    pdf.set_font("Arial", "B", size=12)
+                    pdf.cell(0, 10, txt="Detailed Scores", ln=1) # type: ignore
+                    pdf.set_font("Arial", size=11)
+                    for category, score in result["AI Scores"].items():
+                        pdf.cell(0, 10, txt=f"{category.title()}: {score}", ln=1) # type: ignore
+                
+                # Detailed analysis
+                if "Detailed Analysis" in result:
+                    pdf.ln(5)
+                    pdf.set_font("Arial", "B", size=12)
+                    pdf.cell(0, 10, txt="Detailed Analysis", ln=1) # type: ignore
+                    pdf.set_font("Arial", size=11)
+                    pdf.multi_cell(0, 10, txt=result["Detailed Analysis"]) # type: ignore
+                
+                pdf.add_page()  # New page for next candidate
+            
+            # Return bytes directly with fallback
+            try:
+                return bytes(pdf.output())
+            except Exception:
+                return pdf.output().encode('latin-1', errors='replace') # type: ignore
+                
+        except Exception as e:
+            logging.error(f"Error generating PDF report: {e}")
+            return None
 
     def _generate_docx_report(self, analysis_results):
         """Generates a detailed DOCX report with consistent formatting."""
