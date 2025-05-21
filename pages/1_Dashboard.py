@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
+import json
 
 # Database Helpers
 def adapt_datetime(ts):
@@ -32,11 +33,35 @@ def clear_database():
 def load_data():
     conn = sqlite3.connect('resume_analysis.db', detect_types=sqlite3.PARSE_DECLTYPES)
     query = '''
-        SELECT candidate_name, department, role, match_percentage, suitable
+        SELECT 
+            candidate_name, 
+            department, 
+            role, 
+            match_percentage, 
+            suitable,
+            timestamp,
+            detailed_analysis
         FROM analyses
+        ORDER BY timestamp DESC
     '''
     df = pd.read_sql_query(query, conn)
     conn.close()
+    
+    # Parse detailed_analysis JSON if present
+    try:
+        df['analysis_dict'] = df['detailed_analysis'].apply(json.loads)
+        # Extract skill scores if available
+        df['technical_score'] = df['analysis_dict'].apply(lambda x: x.get('scores', {}).get('technical', 50))
+        df['experience_score'] = df['analysis_dict'].apply(lambda x: x.get('scores', {}).get('experience', 50))
+        df['leadership_score'] = df['analysis_dict'].apply(lambda x: x.get('scores', {}).get('leadership', 50))
+        df['cultural_score'] = df['analysis_dict'].apply(lambda x: x.get('scores', {}).get('cultural', 50))
+    except:
+        # Set default scores if parsing fails
+        df['technical_score'] = 50
+        df['experience_score'] = 50
+        df['leadership_score'] = 50
+        df['cultural_score'] = 50
+    
     return df
 
 @st.cache_data
@@ -161,6 +186,162 @@ with tab1:
         )
         st.plotly_chart(fig_dist, use_container_width=True, config={'displayModeBar': False})
         st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('### 📈 Trend Analysis')
+    trend_cols = st.columns(2)
+    
+    with trend_cols[0]:
+        # Hiring patterns over time
+        df['month'] = pd.to_datetime(df['timestamp']).dt.to_period('M')
+        monthly_apps = df.groupby('month').size().reset_index(name='applications')
+        monthly_apps['month'] = monthly_apps['month'].astype(str)
+        
+        fig_trend = go.Figure()
+        fig_trend.add_trace(go.Scatter(
+            x=monthly_apps['month'],
+            y=monthly_apps['applications'],
+            mode='lines+markers',
+            name='Applications',
+            line=dict(color='#51cf66')
+        ))
+        fig_trend.update_layout(
+            title='Monthly Application Trends',
+            xaxis_title='Month',
+            yaxis_title='Number of Applications',
+            height=300,
+            margin=dict(l=10, r=10, t=30, b=10)
+        )
+        st.plotly_chart(fig_trend, use_container_width=True)
+
+    with trend_cols[1]:
+        # Success rate over time
+        monthly_success = df.groupby('month').agg({
+            'suitable': lambda x: (x == 'Yes').mean() * 100
+        }).reset_index()
+        monthly_success['month'] = monthly_success['month'].astype(str)
+        
+        fig_success = go.Figure()
+        fig_success.add_trace(go.Scatter(
+            x=monthly_success['month'],
+            y=monthly_success['suitable'],
+            mode='lines+markers',
+            name='Success Rate',
+            line=dict(color='#339af0')
+        ))
+        fig_success.update_layout(
+            title='Success Rate Trends',
+            xaxis_title='Month',
+            yaxis_title='Success Rate (%)',
+            height=300,
+            margin=dict(l=10, r=10, t=30, b=10)
+        )
+        st.plotly_chart(fig_success, use_container_width=True)
+
+    # Skills Analysis Section
+    st.markdown('### 🎯 Skills Analysis')
+    skill_cols = st.columns(2)
+    
+    with skill_cols[0]:
+        # Radar chart for average skill scores
+        avg_scores = {
+            'Technical': df['technical_score'].mean(),
+            'Experience': df['experience_score'].mean(),
+            'Leadership': df['leadership_score'].mean(),
+            'Cultural': df['cultural_score'].mean()
+        }
+        
+        categories = list(avg_scores.keys())
+        fig_radar = go.Figure()
+        
+        fig_radar.add_trace(go.Scatterpolar(
+            r=list(avg_scores.values()),
+            theta=categories,
+            fill='toself',
+            name='Average Skills'
+        ))
+        
+        fig_radar.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 100]
+                )
+            ),
+            title='Average Skill Distribution',
+            height=400,
+            showlegend=False
+        )
+        st.plotly_chart(fig_radar, use_container_width=True)
+
+    with skill_cols[1]:
+        # Bubble chart for experience vs technical skills
+        fig_bubble = go.Figure()
+        
+        fig_bubble.add_trace(go.Scatter(
+            x=df['technical_score'],
+            y=df['experience_score'],
+            mode='markers',
+            marker=dict(
+                size=df['match_percentage']/2,
+                color=df['match_percentage'],
+                colorscale='Viridis',
+                showscale=True,
+                colorbar=dict(title='Match %')
+            ),
+            text=df['role'],
+            hovertemplate="Technical: %{x:.1f}<br>Experience: %{y:.1f}<br>Role: %{text}<br>Match: %{marker.color:.1f}%"
+        ))
+        
+        fig_bubble.update_layout(
+            title='Skills vs Experience Distribution',
+            xaxis_title='Technical Score',
+            yaxis_title='Experience Score',
+            height=400
+        )
+        st.plotly_chart(fig_bubble, use_container_width=True)
+
+    # Department Performance
+    st.markdown('### 🏢 Department Analytics')
+    dept_cols = st.columns(2)
+    
+    with dept_cols[0]:
+        # Department hiring funnel
+        dept_metrics = df.groupby('department').agg({
+            'candidate_name': 'count',
+            'suitable': lambda x: (x == 'Yes').sum()
+        }).reset_index()
+        
+        fig_funnel = go.Figure(go.Funnel(
+            name='Hiring Funnel',
+            y=dept_metrics['department'],
+            x=dept_metrics['candidate_name'],
+            textinfo="value+percent initial",
+            textposition="inside"
+        ))
+        
+        fig_funnel.update_layout(
+            title='Department Hiring Funnel',
+            height=400
+        )
+        st.plotly_chart(fig_funnel, use_container_width=True)
+
+    with dept_cols[1]:
+        # Heatmap of skills by department
+        dept_skills = df.groupby('department').agg({
+            'technical_score': 'mean',
+            'experience_score': 'mean',
+            'leadership_score': 'mean',
+            'cultural_score': 'mean'
+        }).reset_index()
+        
+        fig_heatmap = px.imshow(
+            dept_skills.set_index('department'),
+            color_continuous_scale='Viridis',
+            aspect='auto',
+            title='Department Skills Heatmap'
+        )
+        fig_heatmap.update_layout(height=400)
+        st.plotly_chart(fig_heatmap, use_container_width=True)
 
 with tab2:
     # Candidate List with enhanced styling

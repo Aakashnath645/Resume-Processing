@@ -97,18 +97,21 @@ Resume-Hiring/
 ## 🔍 Feature Breakdown
 
 ### ✅ Resume Analysis
+
 - Extracts and analyzes candidate skills, education, and experience
 - Role-specific scoring for better relevance
 - Cultural fit evaluation (experimental)
 - ATS keyword scanning and scoring
 
 ### 📄 Reporting
+
 - Generates individual candidate reports
 - Batch analysis reports with summary metrics
 - Exportable formats: PDF and DOCX
 - Includes breakdowns of match scores and keyword hits
 
 ### 📈 Dashboard & Analytics
+
 - Visual match percentages for each candidate
 - Departmental breakdown of match scores
 - Candidate success prediction (optional)
@@ -134,17 +137,23 @@ We welcome your contributions!
 
 1. Fork this repository
 2. Create a new branch:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
+
 3. Make your changes and commit:
+
    ```bash
    git commit -m "Add: your message"
    ```
+
 4. Push to your forked repo:
+
    ```bash
    git push origin feature/your-feature-name
    ```
+
 5. Submit a Pull Request 🚀
 
 ---
@@ -167,8 +176,6 @@ Install all dependencies via:
 pip install -r requirements.txt
 ```
 
-
-
 ## 🙏 Acknowledgments
 
 - **Google Gemini AI** – for powering resume analysis
@@ -184,4 +191,3 @@ Open an issue at: [https://github.com/Aakashnath645/Resume-Processing/issues](ht
 ---
 
 > 💼 Empower your recruitment with intelligent AI — faster, fairer, and smarter resume screening!
-
