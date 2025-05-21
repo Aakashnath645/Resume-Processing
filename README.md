@@ -76,7 +76,7 @@ streamlit run Home.py
 
 ## 📁 Project Structure
 
-```
+```plaintext
 Resume-Hiring/
 ├── .streamlit/          # Streamlit configuration
 ├── components/          # UI components

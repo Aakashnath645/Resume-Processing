@@ -375,3 +375,80 @@ with tab2:
             )
     else:
         st.info("No data available to display")
+
+    # Results card display with updated recommendation styling
+    st.markdown("### Analysis Results")
+    for i, res in enumerate(st.session_state.current_batch_results):
+        # Clean and format candidate name
+        candidate_name = res.get('Candidate Name', 'Unknown Candidate')
+        if candidate_name.startswith('Candidate_'):
+            # Remove 'Candidate_' prefix and replace underscores with spaces
+            candidate_name = ' '.join(candidate_name.split('_')[1:]).title()
+        
+        # Determine recommendation style
+        recommendation = res['Suitable']
+        if recommendation == 'Yes':
+            badge_color = 'success'
+        elif recommendation == 'Further Evaluation Needed':
+            badge_color = 'warning'
+        else:
+            badge_color = 'danger'
+        
+        # Get detailed scores
+        detailed_scores = {}
+        try:
+            if 'detailed_analysis' in res:
+                analysis_dict = json.loads(res['detailed_analysis'])
+                if 'scores' in analysis_dict:
+                    detailed_scores = analysis_dict['scores'].get('detailed', {})
+        except:
+            detailed_scores = {}
+        
+        with st.container():
+            st.markdown(f"""
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3>{candidate_name}</h3>
+                        <div class="match-badge">{res.get('Match %', '0')}%</div>
+                    </div>
+                    <div class="result-content">
+                        <p><strong>Department:</strong> {res.get('Department', 'N/A')}</p>
+                        <p><strong>Role:</strong> {res.get('Role', 'N/A')}</p>
+                        <div class="score-grid">
+                            <div class="score-item">
+                                <span class="score-label">Technical</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: {detailed_scores.get('technical', 0)}%;"></div>
+                                </div>
+                                <span class="score-value">{detailed_scores.get('technical', 0)}%</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">Experience</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: {detailed_scores.get('experience', 0)}%;"></div>
+                                </div>
+                                <span class="score-value">{detailed_scores.get('experience', 0)}%</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">Leadership</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: {detailed_scores.get('leadership', 0)}%;"></div>
+                                </div>
+                                <span class="score-value">{detailed_scores.get('leadership', 0)}%</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">Cultural</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: {detailed_scores.get('cultural', 0)}%;"></div>
+                                </div>
+                                <span class="score-value">{detailed_scores.get('cultural', 0)}%</span>
+                            </div>
+                        </div>
+                        <p><strong>Recommendation:</strong> 
+                            <span class="{badge_color}-badge">
+                                {recommendation}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)

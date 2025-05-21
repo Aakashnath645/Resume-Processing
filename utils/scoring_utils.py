@@ -38,12 +38,25 @@ def compute_basic_keyword_score(resume_text: str, job_description: str) -> float
     return min(100, (len(common_words) / len(job_words)) * 100)
 
 def is_suitable_numeric(score: float, role_level: str, threshold: float = 45) -> str:
-    """Determine if the candidate is suitable based on score and role"""
+    """Determine if the candidate is suitable based on score and role, with an intermediate state for uncertain cases"""
     role_lower = role_level.lower()
     
+    # Define score ranges for different roles
     if any(term in role_lower for term in ['senior', 'lead', 'manager']):
-        return "Yes" if score >= 40 else "No"
+        if score >= 40:
+            return "Yes"
+        elif 30 <= score < 40:
+            return "Further Evaluation Needed"
+        return "No"
     elif any(term in role_lower for term in ['junior', 'intern']):
-        return "Yes" if score >= 35 else "No"
-    
-    return "Yes" if score >= threshold else "No"
+        if score >= 35:
+            return "Yes"
+        elif 25 <= score < 35:
+            return "Further Evaluation Needed"
+        return "No"
+    else:  # Mid-level roles
+        if score >= threshold:
+            return "Yes"
+        elif (threshold - 15) <= score < threshold:
+            return "Further Evaluation Needed"
+        return "No"
