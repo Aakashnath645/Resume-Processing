@@ -392,29 +392,46 @@ class AIAnalyzer:
             return 50.0
 
     def _calculate_final_scores(self, results: Dict, role_level: str) -> Dict[str, float]:
-        """Fast score calculation"""
+        """Fast score calculation with hold recommendation handling"""
         try:
             # Weight distribution based on role
             if 'senior' in role_level.lower():
                 weights = {'technical': 0.3, 'experience': 0.4, 'keyword': 0.3}
+                hold_threshold = (55, 65)  # Hold range for senior roles
             elif 'junior' in role_level.lower():
                 weights = {'technical': 0.4, 'experience': 0.2, 'keyword': 0.4}
+                hold_threshold = (35, 50)  # Hold range for junior roles
             else:
                 weights = {'technical': 0.35, 'experience': 0.35, 'keyword': 0.3}
+                hold_threshold = (45, 60)  # Hold range for mid-level roles
             
             # Calculate overall score
             overall = sum(results[k] * weights[k] for k in weights)
+            overall = min(100, overall)
+            
+            # Determine recommendation
+            recommendation = 'hold' if hold_threshold[0] <= overall <= hold_threshold[1] else \
+                           'yes' if overall > hold_threshold[1] else 'no'
             
             return {
-                'overall': min(100, overall),
+                'overall': overall,
                 'detailed': {
                     'technical': results['technical'],
                     'experience': results['experience'],
                     'keyword': results['keyword']
-                }
+                },
+                'recommendation': recommendation
             }
         except:
-            return self._get_default_scores()['scores']
+            return {
+                'overall': 50,
+                'detailed': {
+                    'technical': 50,
+                    'experience': 50,
+                    'keyword': 50
+                },
+                'recommendation': 'hold'  # Default to hold on error
+            }
 
     def _extract_scores(self, text: str) -> Dict[str, float]:
         """Extract numerical scores from Gemini response"""
