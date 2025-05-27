@@ -169,7 +169,7 @@ class AIAnalyzer:
     async def get_gemini_response(self, prompt: str) -> Dict[str, Any]:
         """Get response from Gemini API with retries"""
         try:
-            response = await self.model.generate_content([{"text": prompt}])
+            response = await self.model.generate_content([{"text": prompt}]) # type: ignore
             return {
                 'content': response.text,
                 'scores': self._extract_scores(response.text)
@@ -188,7 +188,7 @@ class AIAnalyzer:
             technical_score = self._quick_technical_analysis(resume_text, job_description)
             
             # Experience analysis
-            experience_score = self._quick_experience_analysis(resume_text, role_level)
+            experience_score = self._quick_experience_analysis(resume_text, role_level) # type: ignore
             
             # Calculate final score
             final_score = self._calculate_weighted_score(
@@ -269,7 +269,7 @@ class AIAnalyzer:
             if not required_skills:
                 return 50.0
             
-            resume_skills = self._extract_skills(resume_text)
+            resume_skills = self._extract_skills(resume_text) # type: ignore
             
             # Calculate weighted skill matches
             total_score = 0
@@ -288,7 +288,7 @@ class AIAnalyzer:
             final_score = (total_score / total_weight) * 100 if total_weight > 0 else 50
             
             # Adjust score based on skill context
-            skill_context_bonus = self._analyze_skill_context(resume_text, required_skills.keys())
+            skill_context_bonus = self._analyze_skill_context(resume_text, required_skills.keys()) # type: ignore
             
             return min(100, final_score + skill_context_bonus)
         except:
@@ -420,7 +420,7 @@ class AIAnalyzer:
                     'experience': results['experience'],
                     'keyword': results['keyword']
                 },
-                'recommendation': recommendation
+                'recommendation': recommendation # type: ignore
             }
         except:
             return {
@@ -430,7 +430,7 @@ class AIAnalyzer:
                     'experience': 50,
                     'keyword': 50
                 },
-                'recommendation': 'hold'  # Default to hold on error
+                'recommendation': 'hold'  # Default to hold on error # type: ignore
             }
 
     def _extract_scores(self, text: str) -> Dict[str, float]:

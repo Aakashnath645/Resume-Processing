@@ -749,6 +749,16 @@ st.set_page_config(
     layout="wide"
 )
 
+# Initialize session state variables
+if 'job_description_text' not in st.session_state:
+    st.session_state.job_description_text = ""
+if 'current_batch_results' not in st.session_state:
+    st.session_state.current_batch_results = []
+if 'current_department' not in st.session_state:
+    st.session_state.current_department = None
+if 'current_role' not in st.session_state:
+    st.session_state.current_role = None
+
 load_custom_ui()
 
 st.markdown('<div class="main-container">', unsafe_allow_html=True)

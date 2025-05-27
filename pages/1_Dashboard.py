@@ -378,7 +378,7 @@ with tab2:
 
     # Results card display with updated recommendation styling
     st.markdown("### Analysis Results")
-    for i, res in enumerate(st.session_state.current_batch_results):
+    for i, res in enumerate(st.session_state.get('current_batch_results', [])):
         # Clean and format candidate name
         candidate_name = res.get('Candidate Name', 'Unknown Candidate')
         if candidate_name.startswith('Candidate_'):
