@@ -118,6 +118,34 @@ if selected_dept != "All":
 # Dashboard Tabs
 tab1, tab2 = st.tabs(["📈 Overview", "📋 Candidate List"])
 
+# Add this common chart theme configuration near the top of the file
+chart_theme = {
+    'paper_bgcolor': 'rgba(0,0,0,0)',
+    'plot_bgcolor': 'rgba(31, 41, 55, 0.3)',
+    'font': {
+        'color': 'rgba(255,255,255,0.8)',
+        'family': 'Inter, sans-serif',
+        'size': 11
+    },
+    'title': {
+        'font': {
+            'color': 'rgba(255,255,255,0.9)',
+            'size': 16
+        },
+        'pad': {'t': 10, 'b': 10}
+    },
+    'xaxis': {
+        'gridcolor': 'rgba(255,255,255,0.1)',
+        'zerolinecolor': 'rgba(255,255,255,0.2)',
+        'tickfont': {'color': 'rgba(255,255,255,0.7)'}
+    },
+    'yaxis': {
+        'gridcolor': 'rgba(255,255,255,0.1)',
+        'zerolinecolor': 'rgba(255,255,255,0.2)',
+        'tickfont': {'color': 'rgba(255,255,255,0.7)'}
+    }
+}
+
 with tab1:
     # Key Metrics with consistent card styling
     st.markdown('<div class="section-heading">Key Recruitment Metrics</div>', unsafe_allow_html=True)
@@ -161,7 +189,7 @@ with tab1:
             height=300,
             margin=dict(l=10, r=10, t=30, b=10),
             paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(31, 41, 55, 0.3)',
             font=dict(size=11),
             showlegend=False
         )
@@ -181,7 +209,7 @@ with tab1:
             height=300,
             margin=dict(l=10, r=10, t=30, b=10),
             paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(31, 41, 55, 0.3)',
             font=dict(size=11)
         )
         st.plotly_chart(fig_dist, use_container_width=True, config={'displayModeBar': False})
@@ -209,7 +237,10 @@ with tab1:
             xaxis_title='Month',
             yaxis_title='Number of Applications',
             height=300,
-            margin=dict(l=10, r=10, t=30, b=10)
+            margin=dict(l=10, r=10, t=30, b=10),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(31, 41, 55, 0.3)',
+            font=dict(size=11)
         )
         st.plotly_chart(fig_trend, use_container_width=True)
 
@@ -233,7 +264,10 @@ with tab1:
             xaxis_title='Month',
             yaxis_title='Success Rate (%)',
             height=300,
-            margin=dict(l=10, r=10, t=30, b=10)
+            margin=dict(l=10, r=10, t=30, b=10),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(31, 41, 55, 0.3)',
+            font=dict(size=11)
         )
         st.plotly_chart(fig_success, use_container_width=True)
 
@@ -252,53 +286,90 @@ with tab1:
         
         categories = list(avg_scores.keys())
         fig_radar = go.Figure()
-        
         fig_radar.add_trace(go.Scatterpolar(
             r=list(avg_scores.values()),
             theta=categories,
             fill='toself',
-            name='Average Skills'
+            name='Average Skills',
+            line=dict(color='#51cf66', width=2),
+            fillcolor='rgba(81, 207, 102, 0.3)'
         ))
         
+        # Update the radar chart layout configuration
         fig_radar.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(31, 41, 55, 0.3)',
+            font=chart_theme['font'],
+            title=chart_theme['title'],
             polar=dict(
+                bgcolor='rgba(31, 41, 55, 0.3)',
                 radialaxis=dict(
                     visible=True,
-                    range=[0, 100]
+                    range=[0, 100],
+                    gridcolor='rgba(255,255,255,0.1)',
+                    linecolor='rgba(255,255,255,0.2)',
+                    tickfont={'color': 'rgba(255,255,255,0.7)'}
+                ),
+                angularaxis=dict(
+                    gridcolor='rgba(255,255,255,0.1)',
+                    linecolor='rgba(255,255,255,0.2)',
+                    tickfont={'color': 'rgba(255,255,255,0.7)'}
                 )
             ),
-            title='Average Skill Distribution',
+            showlegend=False,
             height=400,
-            showlegend=False
+            margin=dict(l=20, r=20, t=40, b=20)
         )
-        st.plotly_chart(fig_radar, use_container_width=True)
 
     with skill_cols[1]:
-        # Bubble chart for experience vs technical skills
-        fig_bubble = go.Figure()
-        
-        fig_bubble.add_trace(go.Scatter(
-            x=df['technical_score'],
-            y=df['experience_score'],
-            mode='markers',
-            marker=dict(
-                size=df['match_percentage']/2,
-                color=df['match_percentage'],
-                colorscale='Viridis',
-                showscale=True,
-                colorbar=dict(title='Match %')
-            ),
-            text=df['role'],
-            hovertemplate="Technical: %{x:.1f}<br>Experience: %{y:.1f}<br>Role: %{text}<br>Match: %{marker.color:.1f}%"
-        ))
-        
-        fig_bubble.update_layout(
-            title='Skills vs Experience Distribution',
-            xaxis_title='Technical Score',
-            yaxis_title='Experience Score',
-            height=400
-        )
-        st.plotly_chart(fig_bubble, use_container_width=True)
+        if len(df) > 0:
+            fig_bubble = go.Figure()
+
+            technical_scores = pd.to_numeric(df['technical_score'], errors='coerce').fillna(0)
+            experience_scores = pd.to_numeric(df['experience_score'], errors='coerce').fillna(0)
+            match_percentages = pd.to_numeric(df['match_percentage'], errors='coerce').fillna(0)
+            
+            if len(match_percentages) > 0:
+                max_match = max(match_percentages)
+                fig_bubble.add_trace(go.Scatter(
+                    x=technical_scores,
+                    y=experience_scores,
+                    mode='markers',
+                    marker=dict(
+                        size=match_percentages/2,
+                        sizemode='area',
+                        sizeref=2.*max_match/(40.**2),
+                        color=match_percentages,
+                        colorscale=[
+                            [0, 'rgba(255,107,107,0.7)'],
+                            [0.5, 'rgba(51,154,240,0.7)'],
+                            [1, 'rgba(81,207,102,0.7)']
+                        ],
+                        showscale=True,
+                        colorbar=dict(
+                            title='Match %',
+                            thickness=15,
+                            len=0.8,
+                            tickfont={'color': 'rgba(255,255,255,0.7)'},
+                            title_font={'color': 'rgba(255,255,255,0.8)'}
+                        )
+                    ),
+                    text=df['role'],
+                    hovertemplate="<b>%{text}</b><br>" +
+                                "Technical: %{x:.1f}<br>" +
+                                "Experience: %{y:.1f}<br>" +
+                                "Match: %{marker.color:.1f}%<extra></extra>"
+                ))
+
+                fig_bubble.update_layout(
+                    **chart_theme,
+                    title='Skills vs Experience Distribution',
+                    height=400,
+                    margin=dict(l=20, r=20, t=40, b=20),
+                    hovermode='closest'
+                )
+        else:
+            st.info("No data available for the bubble chart")
 
     # Department Performance
     st.markdown('### 🏢 Department Analytics')
@@ -319,10 +390,9 @@ with tab1:
             textposition="inside"
         ))
         
-        fig_funnel.update_layout(
-            title='Department Hiring Funnel',
-            height=400
-        )
+        # Update other charts with similar configuration
+        fig_funnel.update_layout(**chart_theme)
+
         st.plotly_chart(fig_funnel, use_container_width=True)
 
     with dept_cols[1]:
@@ -336,11 +406,26 @@ with tab1:
         
         fig_heatmap = px.imshow(
             dept_skills.set_index('department'),
-            color_continuous_scale='Viridis',
+            color_continuous_scale=[
+                [0, 'rgba(255,107,107,0.7)'],
+                [0.5, 'rgba(51,154,240,0.7)'],
+                [1, 'rgba(81,207,102,0.7)']
+            ],
             aspect='auto',
             title='Department Skills Heatmap'
         )
-        fig_heatmap.update_layout(height=400)
+        fig_heatmap.update_layout(
+            **chart_theme,
+            height=400,
+            coloraxis_colorbar=dict(
+                title='Score',
+                thickness=15,
+                len=0.8,
+                tickfont={'color': 'rgba(255,255,255,0.7)'},
+                title_font={'color': 'rgba(255,255,255,0.8)'}
+            ),
+            margin=dict(l=20, r=20, t=40, b=20)
+        )
         st.plotly_chart(fig_heatmap, use_container_width=True)
 
 with tab2:
