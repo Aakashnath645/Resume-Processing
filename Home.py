@@ -108,23 +108,51 @@ sqlite3.register_converter("timestamp", convert_datetime)
 def init_db():
     conn = sqlite3.connect('resume_analysis.db', detect_types=sqlite3.PARSE_DECLTYPES)
     c = conn.cursor()
+    
+    # Create table with all required columns
     c.execute('''
         CREATE TABLE IF NOT EXISTS analyses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            candidate_name TEXT,
-            department TEXT,
-            role TEXT,
-            match_percentage REAL,
-            suitable TEXT,
+            candidate_name TEXT NOT NULL,
+            department TEXT NOT NULL,
+            role TEXT NOT NULL,
+            match_percentage REAL NOT NULL,
+            suitable TEXT NOT NULL,
             detailed_analysis TEXT,
-            timestamp timestamp,
-            resume_file_name TEXT
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            resume_file_name TEXT,
+            ai_scores TEXT,
+            ats_score REAL
         )
     ''')
     conn.commit()
     conn.close()
 
+# Add this function after imports and before app initialization
+def check_and_migrate_database():
+    """Check database schema and migrate if needed"""
+    try:
+        conn = sqlite3.connect('resume_analysis.db', detect_types=sqlite3.PARSE_DECLTYPES)
+        c = conn.cursor()
+        
+        # Get existing columns
+        c.execute("PRAGMA table_info(analyses)")
+        columns = {col[1] for col in c.fetchall()}
+        
+        # Add missing columns if they don't exist
+        if 'ai_scores' not in columns:
+            c.execute('ALTER TABLE analyses ADD COLUMN ai_scores TEXT')
+        if 'ats_score' not in columns:
+            c.execute('ALTER TABLE analyses ADD COLUMN ats_score REAL')
+        
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        st.error(f"Database migration error: {e}")
+        raise e
+
 init_db()
+check_and_migrate_database()  # Add this line to perform migration check at startup
 
 # Add these database utility functions after imports
 def get_db_connection():
@@ -970,7 +998,7 @@ if process_button:
             query = '''
                 INSERT INTO analyses 
                 (candidate_name, department, role, match_percentage, suitable, 
-                 detailed_analysis, ai_scores, ats_score, resume_file_name)
+                 detailed_analysis, resume_file_name, ai_scores, ats_score)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             '''
             params = (
@@ -980,9 +1008,9 @@ if process_button:
                 match_percentage,
                 suitable,
                 analysis.get('detailed_analysis', ''),
+                file.name,
                 json.dumps(analysis.get('ai_analysis', {}).get('scores', {})),
-                analysis.get('ats_score', 0),
-                file.name
+                analysis.get('ats_score', 0)
             )
             
             if not safe_db_execute(query, params):
@@ -1470,7 +1498,7 @@ if process_button and uploaded_files and job_description:
         query = '''
             INSERT INTO analyses 
             (candidate_name, department, role, match_percentage, suitable, 
-             detailed_analysis, ai_scores, ats_score, resume_file_name)
+             detailed_analysis, resume_file_name, ai_scores, ats_score)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         '''
         params = (
@@ -1480,9 +1508,9 @@ if process_button and uploaded_files and job_description:
             match_percentage,
             suitable,
             analysis.get('detailed_analysis', ''),
+            file.name,
             json.dumps(analysis.get('ai_analysis', {}).get('scores', {})),
-            analysis.get('ats_score', 0),
-            file.name
+            analysis.get('ats_score', 0)
         )
         
         if not safe_db_execute(query, params):
