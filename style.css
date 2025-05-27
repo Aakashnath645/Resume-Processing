@@ -381,6 +381,41 @@ body {
   border-radius: 1rem !important;
 }
 
+/* Chart Containers */
+[data-testid="stPlotlyChart"] > div {
+    background: rgba(31, 41, 55, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+/* Chart Text Colors */
+.js-plotly-plot .plotly .gtitle {
+    fill: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 600 !important;
+}
+
+.js-plotly-plot .plotly .xtick text,
+.js-plotly-plot .plotly .ytick text {
+    fill: rgba(255, 255, 255, 0.7) !important;
+}
+
+.js-plotly-plot .plotly .axistext {
+    fill: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Grid Lines */
+.js-plotly-plot .plotly .gridlayer path {
+    stroke: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Chart hover effects */
+.js-plotly-plot .plotly .hovertext {
+    color: #1a1a1a !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .main-container {
